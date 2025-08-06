@@ -1,4 +1,4 @@
-{
+export default {
   "expo": {
     "name": "viewer",
     "slug": "viewer",
@@ -8,6 +8,10 @@
     "scheme": "viewer",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "SERVER_URL": process.env.SERVER_URL,
+      "BUS_ID": process.env.BUS_ID
+    },
     "ios": {
       "supportsTablet": true
     },
