@@ -1,5 +1,8 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, LatLng } from "react-native-maps";
+import BusMarker from "./BusMarker";
+import { useMemo } from "react";
+import BusStopMarker from "./BusStopMarker";
 
 type BusDataItem = {
   bus_id: string;
@@ -7,12 +10,44 @@ type BusDataItem = {
   error_msg: string | null;
 };
 
-type Props = {
-  busData: BusDataItem[];
-  location_focus: LatLng;
+type BusStopDataItem = {
+  bus_stop_id: string;
+  bus_stop_location: LatLng | null;
+  error_msg: string | null;
 };
 
-export default function Map({ busData, location_focus }: Props) {
+type RouteDataItem = {
+  route_id: string;
+  bus_stops: [string];
+};
+
+type Props = {
+  busData: Record<string, BusDataItem>;
+  busStopData: Record<string, BusStopDataItem>;
+  location_focus: LatLng;
+  busIds: Set<string>;
+  routeIds: Set<string>;
+  busStopIds: Set<string>;
+  routeData: Record<string, RouteDataItem>;
+};
+
+export default function Map({
+  busData,
+  location_focus,
+  busIds,
+  busStopIds,
+  routeIds,
+  busStopData,
+  routeData,
+}: Props) {
+  console.log(`Map rendering `);
+  const visibleBusData = useMemo(() => {
+    return Object.entries(busData).filter(([id]) => busIds.has(id));
+  }, [busData, busIds]);
+  //   console.log("Stops", busStopData, busStopIds);
+  const visibleBusStopData = useMemo(() => {
+    return Object.entries(busStopData).filter(([id]) => busStopIds.has(id));
+  }, [busStopData, busStopIds]);
   return (
     <MapView
       style={styles.map}
@@ -23,21 +58,22 @@ export default function Map({ busData, location_focus }: Props) {
         longitudeDelta: 0.01,
       }}
     >
-      {busData.map((bus) =>
+      {visibleBusData.map(([bus_id, bus]) =>
         bus.bus_location ? (
-          <Marker
-            key={bus.bus_id}
-            coordinate={bus.bus_location}
-            title="Bus"
-            description={`Tracking Bus-${bus.bus_id}`}
-            anchor={{ x: 0.5, y: 0.5 }}
-          >
-            <Image
-              source={require("../assets/images/bus-icon.png")}
-              style={{ width: 30, height: 30 }}
-              resizeMode="contain"
-            />
-          </Marker>
+          <BusMarker
+            key={bus_id}
+            bus_id={bus_id}
+            bus_location={bus.bus_location}
+          />
+        ) : null
+      )}
+      {visibleBusStopData.map(([bus_stop_id, bus_stop]) =>
+        bus_stop.bus_stop_location ? (
+          <BusStopMarker
+            key={bus_stop_id}
+            bus_stop_id={bus_stop_id}
+            bus_stop_location={bus_stop.bus_stop_location}
+          />
         ) : null
       )}
     </MapView>
