@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { fetchBusLocation } from './fetchBusLocation';
-import { fetchBusIds } from './fetchBusIds';
+import { fetchBusLocation } from '../utils/fetchBusLocation';
+import { fetchBusIds } from '../utils/fetchBusIds';
 
 export function useBusLocations(server_url, initial_bus_ids) {
     // bus_ids = await (bus_ids || fetchBusIds(server_url));

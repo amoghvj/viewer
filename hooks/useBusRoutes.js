@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 // import { fetchBusLocation } from './fetchBusLocation';
-import { fetchBusRoute } from './fetchBusRoutes';
+import { fetchBusRoute } from '../utils/fetchBusRoutes';
 // import { fetchBusIds } from './fetchBusIds';
 
 export function useBusRoutes(server_url, routeIds) {

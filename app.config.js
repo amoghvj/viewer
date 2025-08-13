@@ -10,7 +10,10 @@ export default {
     "newArchEnabled": true,
     "extra": {
       "SERVER_URL": process.env.SERVER_URL,
-      "BUS_ID": process.env.BUS_ID
+      "BUS_ID": process.env.BUS_ID,
+      "eas": {
+        "projectId": "43a1c40b-6392-4f1b-bbcc-66c8fb379439"
+      }
     },
     "ios": {
       "supportsTablet": true
@@ -20,6 +23,12 @@ export default {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "config": {
+        "googleMaps": {
+          "apiKey": process.env.GOOGLE_MAPS_API_KEY
+        }
+      },
+      "package": "com.smartcommute.viewer",
       "edgeToEdgeEnabled": true
     },
     "web": {

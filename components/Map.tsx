@@ -1,8 +1,13 @@
 import { Image, StyleSheet, Text, View } from "react-native";
-import MapView, { Marker, LatLng } from "react-native-maps";
+import MapView, {
+  PROVIDER_GOOGLE,
+  LatLng,
+  PROVIDER_DEFAULT,
+} from "react-native-maps";
 import BusMarker from "./BusMarker";
 import { useMemo } from "react";
 import BusStopMarker from "./BusStopMarker";
+import BusRoute from "./BusRoute";
 
 type BusDataItem = {
   bus_id: string;
@@ -19,6 +24,7 @@ type BusStopDataItem = {
 type RouteDataItem = {
   route_id: string;
   bus_stops: [string];
+  coordinates: LatLng[];
 };
 
 type Props = {
@@ -48,6 +54,9 @@ export default function Map({
   const visibleBusStopData = useMemo(() => {
     return Object.entries(busStopData).filter(([id]) => busStopIds.has(id));
   }, [busStopData, busStopIds]);
+  const visibleRouteData = useMemo(() => {
+    return Object.entries(routeData).filter(([id]) => routeIds.has(id));
+  }, [routeData, routeIds]);
   return (
     <MapView
       style={styles.map}
@@ -57,6 +66,7 @@ export default function Map({
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       }}
+      provider={PROVIDER_DEFAULT}
     >
       {visibleBusData.map(([bus_id, bus]) =>
         bus.bus_location ? (
@@ -73,6 +83,15 @@ export default function Map({
             key={bus_stop_id}
             bus_stop_id={bus_stop_id}
             bus_stop_location={bus_stop.bus_stop_location}
+          />
+        ) : null
+      )}
+      {visibleRouteData.map(([route_id, route]) =>
+        route.coordinates && route.coordinates.length != 0 ? (
+          <BusRoute
+            key={route_id}
+            route_id={route_id}
+            coordinates={route.coordinates}
           />
         ) : null
       )}

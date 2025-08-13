@@ -1,0 +1,194 @@
+//App.js
+import Constants from "expo-constants";
+import { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  Platform,
+  TouchableOpacity,
+  Text,
+  TextInput,
+  ViewStyle,
+  TextStyle,
+} from "react-native";
+import { useBusLocations } from "../hooks/useBusLocations";
+import Map from "./Map";
+import { useBusStopLocations } from "../hooks/useBusStopLocations";
+import { useBusRoutes } from "../hooks/useBusRoutes";
+
+//Environment Variables (from .env)
+const SERVER_URL = Constants.expoConfig?.extra?.SERVER_URL;
+// const BUS_ID = Constants.expoConfig?.extra?.BUS_ID;
+
+export default function MainPage() {
+  const [busId, setBusId] = useState("");
+  const location_focus = { latitude: 0, longitude: 0 };
+  const { busData, busIds, routeIds, setBusIds, initialBusIds } =
+    useBusLocations(SERVER_URL, busId ? [busId] : null);
+  const { routeData, busStopIds } = useBusRoutes(SERVER_URL, routeIds);
+  const { busStopData } = useBusStopLocations(SERVER_URL, [...busStopIds]);
+  function trackBus() {
+    if (initialBusIds.has(busId)) {
+      setBusIds(new Set([busId]));
+    }
+  }
+
+  return (
+    <View style={viewStyles.container} pointerEvents="box-none">
+      {/* MAP fills the full screen (underneath the overlay) */}
+      <Map
+        location_focus={location_focus}
+        busData={busData}
+        routeData={routeData}
+        busStopData={busStopData}
+        busIds={busIds}
+        busStopIds={busStopIds}
+        routeIds={routeIds}
+      />
+
+      {/* Controls overlayed on top of the map */}
+      <SafeAreaView style={viewStyles.topOverlay}>
+        <View style={viewStyles.controlsCol}>
+          <TextInput
+            style={[viewStyles.button, viewStyles.searchBar]}
+            placeholder="Enter Bus ID"
+            value={busId}
+            onChangeText={setBusId}
+            onSubmitEditing={trackBus} // Call when user presses enter
+            returnKeyType="search"
+          />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setBusIds(initialBusIds)}
+          >
+            <Text style={styles.buttonText}>VIEW ALL BUSES</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </View>
+  );
+}
+
+const viewStyles = StyleSheet.create<{
+  container: ViewStyle;
+  topOverlay: ViewStyle;
+  controlsRow: ViewStyle;
+  controlsCol: ViewStyle;
+  button: ViewStyle;
+  searchBar: ViewStyle;
+}>({
+  container: { flex: 1 },
+
+  // absolute overlay pinned to top, only takes as much height as its children
+  topOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    zIndex: 999,
+    elevation: 999, // Android z-index
+    alignItems: "center",
+  },
+
+  controlsRow: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 8,
+    backgroundColor: "rgba(0, 122, 255, 0.95)", // semi-opaque header
+  },
+
+  controlsCol: {
+    width: "100%",
+    flexDirection: "column",
+    justifyContent: "space-around",
+    paddingVertical: 8,
+    backgroundColor: "rgba(0, 122, 255, 0.95)", // semi-opaque header
+  },
+
+  button: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    backgroundColor: "transparent",
+  },
+
+  searchBar: {
+    flex: 1,
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    backgroundColor: "#fff",
+  },
+});
+
+const textStyles = StyleSheet.create<{
+  buttonText: TextStyle;
+}>({
+  buttonText: {
+    color: "white",
+    fontWeight: "600",
+  },
+});
+
+/*
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+
+  // absolute overlay pinned to top, only takes as much height as its children
+  topOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    // on Android, SafeAreaView doesn't add top padding — add StatusBar height
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    zIndex: 999,
+    elevation: 999, // Android z-index
+    alignItems: "center",
+  },
+
+  controlsRow: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 8,
+    backgroundColor: "rgba(0, 122, 255, 0.95)", // semi-opaque header
+  },
+
+  controlsCol: {
+    width: "100%",
+    flexDirection: "col",
+    justifyContent: "space-around",
+    paddingVertical: 8,
+    backgroundColor: "rgba(0, 122, 255, 0.95)", // semi-opaque header
+  },
+
+  button: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    backgroundColor: "transparent", // already have background on container
+  },
+
+  searchBar: {
+    flex: 1,
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    backgroundColor: "#fff",
+  },
+
+  buttonText: {
+    color: "white",
+    fontWeight: "600",
+  },
+});
+*/
